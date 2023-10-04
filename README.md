@@ -1,37 +1,95 @@
-# godot-llm-poc
-
-A free game, made with Godot, using an LLM to drive NPC dialogue, and player dialogue options
-
 # Introduction
 
-Something like [Coffee Talk](https://store.steampowered.com/app/914800/Coffee_Talk/):
+Trying to integrate an LLM into Godot, for spicing up NPC chatter.
 
-> Coffee Talk is a coffee brewing and heart-to-heart talking simulator about listening to fantasy-inspired modern peoples’ problems, and helping them by serving up a warm drink or two.
+# Work log
 
-I'm focusing on the "talking simulator" bit. A fantasy person could enter the coffee shop, and be a - say - plumber, with aspirations to become a writer. Then you'll shoot the breeze, and NPC dialogue will be LLM-generated, and the 2 or 3 player dialogue options will also be LLM-generated (to save them from typing much).
+## Part 1
 
-We can run sentiment analysis on the dialogue, which can drive the NPC's facial expressions. We can maybe start with a small set of expressions for these emotions:
-- angry
-- confused
-- happy
-- sad
-- surprised
+```
+mkdir godot-llm-experiment
+cd godot-llm-experiment
+mkdir src
+```
 
-And maybe some extras:
-- bored
-- embarrassed
-- excited
-- frustrated
-- lonely
-- nervous
-- proud
-- scared
-- shy
-- silly
+Start here: https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html
 
-# Notes
+Conda environment (for scons):
 
-(I'm busy, and will work on this every sometimes, but for now, I'll add thoughts directly to this README)
+```
+ENVNAME=godot-llm-experiment-py311; conda deactivate; conda remove -y --name $ENVNAME --all ; conda create -y -n $ENVNAME python==3.11 ; [ -e .conda ] || echo "conda activate $ENVNAME" > .conda;  source .conda
+```
 
-- NPC dialogue could be [role-prompted](https://learnprompting.org/docs/basics/roles), e.g. "You are a plumber who aspire to be a writer. \<remainder of prompt>"
-- Something like Mosaic's StoryWriter has a generous context window, but I'd have to test and see what minimum GPU is required, and if the model needs to be quantised or somehow further reduced to fit regular/common consumer GPUs: https://huggingface.co/mosaicml/mpt-7b-storywriter
+In future, just `source .conda` to continue working.
+
+Install scons:
+
+```
+pip install scons
+```
+
+Clone the godot-cpp repo:
+
+```
+git clone https://github.com/godotengine/godot-cpp.git
+```
+
+Build C++ bindings. 
+
+```
+cp godot-cpp/gdextension/extension_api.json the-game/extension_api.json
+```
+
+Or alternatively, it seems you can generate this file yourself:
+
+```
+cd the-game
+godot --dump-extension-api extension_api.json
+```
+
+But I saw differences between the one I created, and the one in the repo. So, I'll use the one in the repo for now.
+
+Continue...
+
+```
+cd godot-cpp
+git checkout godot-4.1.1-stable
+scons platform=linux -j32 custom_api_file=$(pwd)/../the-game/extension_api.json
+cd ..
+```
+
+(takes about 35 seconds on my machine)
+
+Now at this section: https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html#creating-a-simple-plugin
+
+But I'm calling mine `the-game` instead of `demo`.
+
+Add all the example code (.h and .cpp files).
+
+Now at this section: https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html#compiling-the-plugin
+
+Download the Scons file. It looks the same as the one here: `godot-cpp/test/SConstruct`
+so ignore the warning
+> This SConstruct file was written to be used with the latest godot-cpp master, you may need to make small changes using it with older versions or refer to the SConstruct file in the Godot 4.0 documentation.
+
+Run 
+
+```
+scons platform=linux
+```
+
+Hmm, seems I ought to have used `-j31`` before :)
+
+> Auto-detected 32 CPU cores available for build parallelism. Using 31 cores by default. You can override it with the -j argument.
+
+Another 35 seconds later, I have: `the-game/bin/libgdexample.linux.template_debug.x86_64.so`
+
+Later, I'll drop debug symbols with a prod build:
+
+```
+scons platform=linux target=template_release
+```
+
+## Part 2
+
+TODO https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html#adding-properties
