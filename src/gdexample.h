@@ -12,6 +12,7 @@ class GDExample : public Sprite2D {
 private:
     double time_passed;
     double amplitude;
+    double speed;
 
 // A static function that Godot will call to find out which methods can be called and which properties it exposes
 protected:
@@ -25,6 +26,8 @@ public:
     void _process(double delta);
     void set_amplitude(const double p_amplitude);
     double get_amplitude() const;
+    void set_speed(const double p_speed);
+    double get_speed() const;
 };
 
 }

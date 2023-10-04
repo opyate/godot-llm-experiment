@@ -6,6 +6,7 @@
 
 [node name="GDExample" type="GDExample" parent="."]
 amplitude = 100.0
-position = Vector2(126.305, 155.283)
+speed = 0.28
+position = Vector2(156.79, 189.915)
 texture = ExtResource("1_0j8cm")
 centered = false

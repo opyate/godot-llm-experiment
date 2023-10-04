@@ -94,4 +94,13 @@ scons platform=linux target=template_release
 
 Now at this section: https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html#adding-properties
 
-Add amplitude.
+Add new amplitude and speed properties.
+
+Have this new property reflect in Godot editor with:
+
+```
+rm the-game/bin/libgdexample.linux.template_debug.x86_64.so
+scons platform=linux
+```
+
+Then `Project -> Reload Current Project` in the editor.
