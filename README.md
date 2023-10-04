@@ -104,3 +104,17 @@ scons platform=linux
 ```
 
 Then `Project -> Reload Current Project` in the editor.
+
+Now at this section: https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html#signals
+
+Add the `position_changed` signal, then reload using the steps above (remove the .so, re-run scons, and reload the project).
+
+Now, if you run the game, you'll see something like this in the logs:
+
+```
+The position of GDExample is now (153.6926, 191.1001)
+The position of GDExample is now (190.3038, 166.3663)
+The position of GDExample is now (199.328, 130.0965)
+The position of GDExample is now (178.0086, 88.59532)
+The position of GDExample is now (132.8584, 49.07652)
+```

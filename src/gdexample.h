@@ -13,6 +13,8 @@ private:
     double time_passed;
     double amplitude;
     double speed;
+    // we're emiting a signal periodically, and this variable tracks that period. (Not exposed via getters/setters.)
+    double time_emit;
 
 // A static function that Godot will call to find out which methods can be called and which properties it exposes
 protected:
