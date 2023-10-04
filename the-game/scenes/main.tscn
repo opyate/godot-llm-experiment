@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://c770bm5t2ke5n"]
+
+[ext_resource type="Texture2D" uid="uid://fr2m87ufgdj" path="res://icon.svg" id="1_ikkku"]
+
+[node name="main" type="Node2D"]
+
+[node name="GDExample" type="GDExample" parent="."]
+position = Vector2(0.16074, 1.35858)
+texture = ExtResource("1_ikkku")
+centered = false
