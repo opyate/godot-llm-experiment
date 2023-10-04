@@ -92,4 +92,6 @@ scons platform=linux target=template_release
 
 ## Part 2
 
-TODO https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html#adding-properties
+Now at this section: https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html#adding-properties
+
+Add amplitude.
