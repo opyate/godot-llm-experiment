@@ -123,6 +123,8 @@ The position of GDExample is now (132.8584, 49.07652)
 
 Try https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1
 
+Mistral announcement: https://mistral.ai/news/announcing-mistral-7b/
+
 At the time of writing, GGUF is the recommended format to use, and the Q5_K_M model is one of TheBoke's recommended models, because it's quality los is very low. (Not sure yet what level of quality we'll need for this use-case, but hey.)
 
 From https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/blob/main/mistral-7b-instruct-v0.1.Q5_K_M.gguf
@@ -176,3 +178,15 @@ LLM stuff to look at:
 - I'll experiment more with dialogue soon (for the "spicing up NPC chatter" goal)
 - be mindful of not mentioning real product/people names, in case of defamation, etc
 - detect GPU/AVX/AVX2 capabilities, and use them if available
+
+
+# Part 4: It talks! To itself!
+
+See the [chat transcript](docs/chat-transcript.txt) (which is funny, because I've jsut finished Left Hand Of Darkness last week). The `~~~` is when I refresh the dialogue history so the context doesn't blow up.
+
+A bit rough and ready, but run with:
+
+```
+cd fine-tune
+python dialogue.py
+```
