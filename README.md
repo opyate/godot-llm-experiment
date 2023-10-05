@@ -118,3 +118,58 @@ The position of GDExample is now (199.328, 130.0965)
 The position of GDExample is now (178.0086, 88.59532)
 The position of GDExample is now (132.8584, 49.07652)
 ```
+
+## Part 3: the LLM
+
+Try https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1
+
+At the time of writing, GGUF is the recommended format to use, and the Q5_K_M model is one of TheBoke's recommended models, because it's quality los is very low. (Not sure yet what level of quality we'll need for this use-case, but hey.)
+
+From https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/blob/main/mistral-7b-instruct-v0.1.Q5_K_M.gguf
+
+``` 
+mkdir -p models
+cd models
+wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q5_K_M.gguf
+sha256sum mistral-7b-instruct-v0.1.Q5_K_M.gguf
+# c4b062ec7f0f160e848a0e34c4e291b9e39b3fc60df5b201c038e7064dbbdcdc
+cd ..
+```
+
+A test for the model is in `fine-tune/app.py`:
+
+```
+cd fine-tune
+python app.py
+```
+
+It generates this using CPU:
+
+```
+{'thing': 'sketchbook', 'text': '\n\n"Wow, you\'re quite the artist!"'}
+Time taken: 1.5295381546020508 seconds
+{'thing': 'Xbox controller', 'text': ' "Hey, are you ready for some Gears of War 5 action?"'}
+Time taken: 1.4008283615112305 seconds
+{'thing': 'pencil', 'text': ' “You’re drawing the line.'}
+Time taken: 0.7739419937133789 seconds
+{'thing': 'banana', 'text': '\n\n"You\'re not going to use that in your game, are you?"'}
+Time taken: 1.456860065460205 seconds
+```
+
+("Gears of War 5"? Ooh, we shan't be drawing the attention of the lawyers, now, shall we?)
+
+GPU (which is quicker):
+
+```
+ggml_cuda_set_main_device: using device 0 (NVIDIA RTX 6000 Ada Generation) as main device
+{'thing': 'sketchbook', 'text': ' “You’re an artist!'}
+Time taken: 0.26387453079223633 seconds
+{'thing': 'Xbox controller', 'text': '\n\n"I see you\'re a fan of the green ring."'}
+Time taken: 0.3325464725494385 seconds
+{'thing': 'pencil', 'text': ' "Draw me a game!"'}
+Time taken: 0.28811216354370117 seconds
+{'thing': 'banana', 'text': '\n\n"What\'s the story behind this banana?"'}
+Time taken: 0.29184842109680176 seconds
+```
+
+I'll experiment more with dialogue soon (for the "spicing up NPC chatter" goal), and also to be mindful of not mentioning real product/people names, in case of defamation, etc.
