@@ -172,4 +172,7 @@ Time taken: 0.28811216354370117 seconds
 Time taken: 0.29184842109680176 seconds
 ```
 
-I'll experiment more with dialogue soon (for the "spicing up NPC chatter" goal), and also to be mindful of not mentioning real product/people names, in case of defamation, etc.
+LLM stuff to look at:
+- I'll experiment more with dialogue soon (for the "spicing up NPC chatter" goal)
+- be mindful of not mentioning real product/people names, in case of defamation, etc
+- detect GPU/AVX/AVX2 capabilities, and use them if available

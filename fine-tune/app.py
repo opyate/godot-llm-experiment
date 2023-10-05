@@ -10,9 +10,10 @@ import time
 cwd = Path(__file__).parent.absolute()
 model_path = cwd / '..' / 'models' / 'mistral-7b-instruct-v0.1.Q5_K_M.gguf'
 
+# see https://python.langchain.com/docs/integrations/providers/ctransformers
 config = {'max_new_tokens': 64 }  # , 'gpu_layers': 256}
 
-model = CTransformers(model=str(model_path), config=config)
+model = CTransformers(model=str(model_path), config=config)  # , lib='avx2')
 
 prompt_template = "What does one say to a game developer holding a {thing}?"
 
