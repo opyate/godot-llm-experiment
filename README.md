@@ -199,3 +199,6 @@ See the [chat transcript](docs/chat-transcript2.txt).
 
 It does 60 exchanges in ~50 seconds with GPU.
 
+Remarks:
+- same as before: be mindful of mentioning real product/people names
+- they tend to get into a "high five" loop, where they keep starting their responses with "Absolutely! Let's...", "Let's do it!", etc
