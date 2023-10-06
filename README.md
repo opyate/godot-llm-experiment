@@ -205,7 +205,7 @@ Remarks:
 
 # Part 5: using the LLM from C++
 
-Probably the best place to start is https://github.com/ggerganov/llama.cpp/tree/master/examples/main
+Probably the best place to start is https://github.com/ggerganov/llama.cpp/tree/master/examples/simple
 
 As I know GDScript better than C++, an as GDScript is kind of like Python already, it might make sense to port `dialogue.py` to GDSCript, and keep the dialogue orchestration code in GDScript.
 
@@ -218,9 +218,21 @@ cd llama.cpp
 make
 ```
 
-As it builds all the examples, we can test `main` right now:
+As it builds all the examples, we can test `main` and `simple` right now:
 
 ```
-/main -m ../models/mistral-7b-instruct-v0.1.Q5_K_M.gguf --prompt "Once upon a time"
+./main -m ../models/mistral-7b-instruct-v0.1.Q5_K_M.gguf --prompt "Once upon a time"
+./simple ../models/mistral-7b-instruct-v0.1.Q5_K_M.gguf "Once upon a time"
 ```
-It works, and it writes us a [little story](docs/llamacpp-main.txt).
+It works, and it writes us a little story [using main](docs/llamacpp-main.txt) and [using simple](docs/llamacpp-simple.txt).
+
+Next, try and build simple.cpp with Scons, as that's what we're using for the Godot plugin.
+
+After piecing together the Scons file, I got it to work:
+
+```
+cd llamacpp-main-example-with-scons
+scons platform=linux
+./simple ../models/mistral-7b-instruct-v0.1.Q5_K_M.gguf "Once upon a time"
+```
+

@@ -1,0 +1,47 @@
+# convert this to Scons:
+# https://github.com/ggerganov/llama.cpp/blob/master/examples/simple/CMakeLists.txt
+# llama.cpp/examples/simple/CMakeLists.txt
+
+import os
+
+# Initialize an environment
+env = Environment()
+
+# Setting the C++ standard to C++11
+env.Append(CXXFLAGS='-std=c++11')
+
+# Defining the source files
+sources = ['simple.cpp']
+
+# Get the path to 'llama' from the command-line arguments or use a default
+llamacpp_path = ARGUMENTS.get('llamacpp_path', '../llama.cpp')  # ../llama.cpp is a directory, not a cpp file :)
+
+# Specify where to find headers and libraries
+env.Append(CPPPATH=[llamacpp_path, os.path.join(llamacpp_path, 'common')])
+
+# Object files from the specified path
+object_files = [
+    os.path.join(llamacpp_path, 'ggml-alloc.o'),
+    os.path.join(llamacpp_path, 'k_quants.o'),
+    os.path.join(llamacpp_path, 'ggml.o'),
+    os.path.join(llamacpp_path, 'common.o'),
+    os.path.join(llamacpp_path, 'llama.o')
+]
+
+# Combine source files and object files
+all_sources = sources + object_files
+
+# Defining the libraries to link against. 
+# Please note that ${CMAKE_THREAD_LIBS_INIT} is used in CMake to handle threading. 
+# In the context of SCons and depending on the platform (e.g., Linux), 
+# you might want to link against the 'pthread' library.
+libraries = ['pthread']
+
+# env['CXXCOMSTR'] = ">>> Compiling $SOURCE"
+# env['LINKCOMSTR'] = ">>> Linking $TARGET"
+
+# Compile and link the executable
+simple_program = env.Program(target='simple', source=all_sources, LIBS=libraries)
+
+# Assuming you want to install the built executable to a "bin" directory
+# env.Install('bin', simple_program)
