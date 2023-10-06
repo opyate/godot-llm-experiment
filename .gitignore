@@ -1,3 +1,4 @@
 godot-cpp
 models/
 llama.cpp
+.sconsign.dblite

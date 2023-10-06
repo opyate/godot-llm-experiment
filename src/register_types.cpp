@@ -2,6 +2,7 @@
 
 // reference our header file
 #include "gdexample.h"
+#include "gdllm.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -16,8 +17,9 @@ void initialize_example_module(ModuleInitializationLevel p_level) {
         return;
     }
 
-    // register our class with Godot
+    // register our classes with Godot
     ClassDB::register_class<GDExample>();
+    ClassDB::register_class<GDLLM>();
 }
 
 // called when Godot unloads our plugin

@@ -1,7 +1,3 @@
-# Introduction
-
-Trying to integrate an LLM into Godot, for spicing up NPC chatter.
-
 # Work log
 
 ## Part 1
@@ -239,3 +235,29 @@ scons platform=linux
 ./simple ../models/mistral-7b-instruct-v0.1.Q5_K_M.gguf "Once upon a time"
 ```
 
+# Part 6: convert simple.cpp to GDExtension module
+
+simple.cpp looks straightforward enough, but:
+- the model will be re-used by the game code, so it makes sense to load it once, and keep it in memory
+- when the game code unloads, then the destructor has to clean up
+
+I basically made copies of gdexample.cpp and gdexample.h, and added the llama.cpp code from simple.cpp to it.
+
+Then modified the SConstruct file to build it.
+
+```
+scons platform=linux 
+```
+
+Compilation actually worked the first time (and the [build log is here](docs/build-log-gdllm.txt)), but whether the module actually works is another matter.
+
+And, no, it doesn't:
+
+```
+  Can't open dynamic library: /home/opyate/Documents/games/godot-llm-experiment/the-game/bin/libgdllm.linux.template_debug.x86_64.so. Error: /home/opyate/Documents/games/godot-llm-experiment/the-game/bin/libgdllm.linux.template_debug.x86_64.so: undefined symbol: llama_load_model_from_file.
+  core/extension/gdextension.cpp:455 - GDExtension dynamic library not found: /home/opyate/Documents/games/godot-llm-experiment/the-game/bin/libgdllm.linux.template_debug.x86_64.so
+  Failed loading resource: res://bin/gdllm.gdextension. Make sure resources have been imported by opening the project in the editor at least once.
+  scene/gui/text_edit.cpp:5300 - Index p_line = -1 is out of bounds (text.size() = 2).
+```
+
+This is it: `undefined symbol: llama_load_model_from_file`.
