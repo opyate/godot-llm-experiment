@@ -190,3 +190,12 @@ A bit rough and ready, but run with:
 cd fine-tune
 python dialogue.py
 ```
+
+# Part 4: Dialogue cleanup
+
+OK, so it was late last night, and I didn't properly use EOS tokens, so cleaned up a lot of bot responses by hand. But it's way better now, and I've seeded the dialogue so we end up with a pair of right prepper nutters.
+
+See the [chat transcript](docs/chat-transcript2.txt).
+
+It does 60 exchanges in ~50 seconds with GPU.
+
