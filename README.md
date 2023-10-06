@@ -18,12 +18,17 @@ cd ..
 
 git clone https://github.com/ggerganov/llama.cpp.git
 git clone https://github.com/godotengine/godot-cpp.git
+
 cd llama.cpp
 make
 cd ..
+
 cd godot-cpp
-scons platform=linux -j31
+git checkout godot-4.1.1-stable
+cp gdextension/extension_api.json ../the-game/extension_api.json
+scons platform=linux -j31 custom_api_file=$(pwd)/../the-game/extension_api.json
 cd ..
+
 scons platform=linux -j31
 ```
 

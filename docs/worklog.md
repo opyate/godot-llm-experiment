@@ -261,3 +261,17 @@ And, no, it doesn't:
 ```
 
 This is it: `undefined symbol: llama_load_model_from_file`.
+
+# Part 7: late night debug to get it working
+
+Messed a bit with SConstruct.
+
+After fixing llama (by specifying it as a statically linked lib in SConstruct), Godot libs started breaking, beginning with `_ZTIN5godot7WrappedE`, then after adding the wrapped hpp and cpp files, here's the latest error:
+
+```
+  Can't open dynamic library: /home/opyate/Documents/games/godot-llm-experiment/the-game/bin/libgdllm.linux.template_debug.x86_64.so. Error: /home/opyate/Documents/games/godot-llm-experiment/the-game/bin/libgdllm.linux.template_debug.x86_64.so: undefined symbol: _ZTIN5godot10CanvasItemE.
+  core/extension/gdextension.cpp:455 - GDExtension dynamic library not found: /home/opyate/Documents/games/godot-llm-experiment/the-game/bin/libgdllm.linux.template_debug.x86_64.so
+  Failed loading resource: res://bin/gdllm.gdextension. Make sure resources have been imported by opening the project in the editor at least once.
+```
+
+I'll pause here for the night.
