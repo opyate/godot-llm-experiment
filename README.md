@@ -125,7 +125,7 @@ Try https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1
 
 Mistral announcement: https://mistral.ai/news/announcing-mistral-7b/
 
-At the time of writing, GGUF is the recommended format to use, and the Q5_K_M model is one of TheBoke's recommended models, because it's quality los is very low. (Not sure yet what level of quality we'll need for this use-case, but hey.)
+At the time of writing, GGUF is the recommended format to use, and the Q5_K_M model is one of TheBloke's recommended models, because it's quality los is very low. (Not sure yet what level of quality we'll need for this use-case, but hey.)
 
 From https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/blob/main/mistral-7b-instruct-v0.1.Q5_K_M.gguf
 
@@ -182,7 +182,7 @@ LLM stuff to look at:
 
 # Part 4: It talks! To itself!
 
-See the [chat transcript](docs/chat-transcript.txt) (which is funny, because I've jsut finished Left Hand Of Darkness last week). The `~~~` is when I refresh the dialogue history so the context doesn't blow up.
+See the [chat transcript](docs/chat-transcript.txt) (which is funny, because I've just finished Left Hand Of Darkness last week). The `~~~` is when I refresh the dialogue history so the context doesn't blow up.
 
 A bit rough and ready, but run with:
 
@@ -201,4 +201,26 @@ It does 60 exchanges in ~50 seconds with GPU.
 
 Remarks:
 - same as before: be mindful of mentioning real product/people names
-- they tend to get into a "high five" loop, where they keep starting their responses with "Absolutely! Let's...", "Let's do it!", etc
+- they tend to get into a "high five" loop, where they keep starting their responses with _"Absolutely!"_, _"Let's do it!"_, etc
+
+# Part 5: using the LLM from C++
+
+Probably the best place to start is https://github.com/ggerganov/llama.cpp/tree/master/examples/main
+
+As I know GDScript better than C++, an as GDScript is kind of like Python already, it might make sense to port `dialogue.py` to GDSCript, and keep the dialogue orchestration code in GDScript.
+
+
+Let's build the llama.cpp dependencies:
+
+```
+git clone https://github.com/ggerganov/llama.cpp.git
+cd llama.cpp
+make
+```
+
+As it builds all the examples, we can test `main` right now:
+
+```
+/main -m ../models/mistral-7b-instruct-v0.1.Q5_K_M.gguf --prompt "Once upon a time"
+```
+It works, and it writes us a [little story](docs/llamacpp-main.txt).
