@@ -286,3 +286,7 @@ scons: building terminated because of errors.
 ```
 
 I'm wondering if I have to compile the llama sources directly into the shared library rather than first compiling them into object files and then trying to link them.
+
+# Part 7: yay, it compiles and loads without errors
+
+I finally managed to whip together a SConstruct for llama_dot_cpp that makes the extension happy. The extension loads error-free in the game, but now it's time to test it.

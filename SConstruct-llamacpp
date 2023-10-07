@@ -22,18 +22,6 @@ env = Environment(CPPFLAGS=MK_CPPFLAGS,
                   CXXFLAGS=MK_CXXFLAGS,
                   HOST_CXXFLAGS=MK_HOST_CXXFLAGS)
 
-# # Rules from Makefile
-# env.Object(target='k_quants.o', source='k_quants.c')
-# env.Object(target='ggml.o', source='ggml.c')
-# env.Object(target='ggml-alloc.o', source='ggml-alloc.c')
-# env.Object(target='llama.o', source='llama.cpp')
-# env.Object(target='common.o', source='common/common.cpp')
-# env.Object(target='console.o', source='common/console.cpp')
-# env.Object(target='grammar-parser.o', source='common/grammar-parser.cpp')
-# env.Object(target='train.o', source='common/train.cpp')
-# # Compile the sources into object files
-# libllama = env.SharedLibrary(target='libllama', source=['llama.o', 'ggml.o'] + OBJS)
-
 k_quants_obj = env.SharedObject(target='k_quants.o', source='k_quants.c')
 ggml_obj = env.SharedObject(target='ggml.o', source='ggml.c')
 ggml_alloc_obj = env.SharedObject(target='ggml-alloc.o', source='ggml-alloc.c')
