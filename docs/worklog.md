@@ -298,13 +298,14 @@ E 0:00:03:0221   main.gd:9 @ _ready(): Error calling from signal 'completion_gen
 
 ```
 
-Changed the signal to not bother with passing `this`, but just the completion text. However, it is garbage:
+Changed the signal to not bother with passing `this`, and now...
 
-```
-GDLLM prompt:
-Hello, my name is 
-GDLLM completion:
-1000000000000000000000000
-Got completion:
-1000000000000000000000000
-```
+It works!
+
+![It works](docs/it_works.png)
+
+# Part 8: make it all look a bit nicer
+
+This is where I port the dialogue orchestration code from Python to GDScript.
+
+TODO.
