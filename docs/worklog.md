@@ -290,3 +290,21 @@ I'm wondering if I have to compile the llama sources directly into the shared li
 # Part 7: yay, it compiles and loads without errors
 
 I finally managed to whip together a SConstruct for llama_dot_cpp that makes the extension happy. The extension loads error-free in the game, but now it's time to test it.
+
+```
+E 0:00:03:0221   main.gd:9 @ _ready(): Error calling from signal 'completion_generated' to callable: 'Node2D(main.gd)::on_completion_generated': Cannot convert argument 1 from Object to Object.
+  <C++ Source>   core/object/object.cpp:1082 @ emit_signalp()
+  <Stack Trace>  main.gd:9 @ _ready()
+
+```
+
+Changed the signal to not bother with passing `this`, but just the completion text. However, it is garbage:
+
+```
+GDLLM prompt:
+Hello, my name is 
+GDLLM completion:
+1000000000000000000000000
+Got completion:
+1000000000000000000000000
+```

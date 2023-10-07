@@ -21,7 +21,7 @@ void GDLLM::_bind_methods() {
     // the essentials of each of the method's parameters.
     // PropertyInfo parameters are defined with the data type of the parameter,
     // and then the name that the parameter will have by default.
-    ADD_SIGNAL(MethodInfo("completion_generated", PropertyInfo(Variant::OBJECT, "node"), PropertyInfo(Variant::STRING, "completion_text")));
+    ADD_SIGNAL(MethodInfo("completion_generated", PropertyInfo(Variant::STRING, "completion_text")));
 
     ClassDB::bind_method(D_METHOD("run_completion", "prompt_from_godot"), &GDLLM::run_completion);
 }
@@ -39,7 +39,7 @@ void GDLLM::run_completion(const String& prompt_from_godot) {
     godot::UtilityFunctions::print("GDLLM prompt:\n", prompt_from_godot);
     gpt_params params;
 
-    params.model = "mistral-7b-instruct-v0.1.Q5_K_M.gguf";
+    params.model = "bin/mistral-7b-instruct-v0.1.Q5_K_M.gguf";
 
     // trying random stuff off the Internet: 
     // https://www.reddit.com/r/godot/comments/12u2l5i/gdextension_strings_gettings_mangledgarbage_from/
@@ -243,7 +243,7 @@ void GDLLM::run_completion(const String& prompt_from_godot) {
     godot::UtilityFunctions::print("GDLLM completion:\n", godot_completion);
 
     // emit a signal with the completion text
-    emit_signal("completion_generated", this, godot_completion);
+    emit_signal("completion_generated", godot_completion);
 
     // free memory
     completion_list.clear();

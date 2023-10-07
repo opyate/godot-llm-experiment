@@ -9,6 +9,6 @@ func _ready():
 	llm.run_completion("Hello, my name is ")
 	
 
-func on_completion_generated(_node: Node, completion_text: String):
+func on_completion_generated(completion_text: String):
 	print("Got completion:")
 	print(completion_text)
