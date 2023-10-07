@@ -2,3 +2,6 @@ godot-cpp
 models/
 llama.cpp
 .sconsign.dblite
+libllama.a
+*.so
+*.os
