@@ -275,3 +275,14 @@ After fixing llama (by specifying it as a statically linked lib in SConstruct), 
 ```
 
 I'll pause here for the night.
+
+# Part 7: debug continued
+
+I've reverted the SConstruct file to a previous state, but there's this compile error which I didn't see before (probably didn't clean the build environment properly with `scons -c`):
+
+```
+scons: *** [the-game/bin/libgdllm.linux.template_debug.x86_64.so] Source file: llama.cpp/ggml-alloc.o is static and is not compatible with shared target: the-game/bin/libgdllm.linux.template_debug.x86_64.so
+scons: building terminated because of errors.
+```
+
+I'm wondering if I have to compile the llama sources directly into the shared library rather than first compiling them into object files and then trying to link them.

@@ -1,0 +1,77 @@
+import os
+import filecmp
+
+# Variables from Makefile
+BUILD_TARGETS = ['main', 'quantize', 'quantize-stats', 'perplexity', 'embedding', 'vdot', 'q8dot', 'train-text-from-scratch', 'convert-llama2c-to-ggml', 'simple', 'batched', 'save-load-state', 'server', 'embd-input-test', 'gguf', 'llama-bench', 'baby-llama', 'beam-search', 'speculative', 'infill', 'benchmark-matmult', 'parallel', 'finetune', 'export-lora']
+UNAME_S = os.uname()[0]
+UNAME_P = os.uname()[4]
+UNAME_M = os.uname()[4]
+
+WARN_FLAGS = '-Wall -Wextra -Wpedantic -Wcast-qual -Wno-unused-function'
+MK_CPPFLAGS = '-I. -Icommon -D_XOPEN_SOURCE=600 -D_GNU_SOURCE -DNDEBUG -DGGML_USE_K_QUANTS'
+MK_CFLAGS = '-std=c11 -fPIC -O3 %s -Wshadow -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes -Werror=implicit-int  -Werror=implicit-function-declaration -Wdouble-promotion -pthread -march=native -mtune=native' % WARN_FLAGS
+MK_CXXFLAGS = '-std=c++11 -fPIC -O3 %s -Wmissing-declarations -Wmissing-noreturn -pthread' % WARN_FLAGS
+MK_HOST_CXXFLAGS = '-Wno-array-bounds -Wno-format-truncation -Wextra-semi -march=native -mtune=native'
+LIB_PRE = 'lib'
+DSO_EXT = '.so'
+OBJS = ['k_quants.o', 'ggml-alloc.o']
+
+# Environment
+env = Environment(CPPFLAGS=MK_CPPFLAGS,
+                  CFLAGS=MK_CFLAGS,
+                  CXXFLAGS=MK_CXXFLAGS,
+                  HOST_CXXFLAGS=MK_HOST_CXXFLAGS)
+
+# # Rules from Makefile
+# env.Object(target='k_quants.o', source='k_quants.c')
+# env.Object(target='ggml.o', source='ggml.c')
+# env.Object(target='ggml-alloc.o', source='ggml-alloc.c')
+# env.Object(target='llama.o', source='llama.cpp')
+# env.Object(target='common.o', source='common/common.cpp')
+# env.Object(target='console.o', source='common/console.cpp')
+# env.Object(target='grammar-parser.o', source='common/grammar-parser.cpp')
+# env.Object(target='train.o', source='common/train.cpp')
+# # Compile the sources into object files
+# libllama = env.SharedLibrary(target='libllama', source=['llama.o', 'ggml.o'] + OBJS)
+
+k_quants_obj = env.SharedObject(target='k_quants.o', source='k_quants.c')
+ggml_obj = env.SharedObject(target='ggml.o', source='ggml.c')
+ggml_alloc_obj = env.SharedObject(target='ggml-alloc.o', source='ggml-alloc.c')
+llama_obj = env.SharedObject(target='llama.o', source='llama.cpp')
+common_obj = env.SharedObject(target='common.o', source='common/common.cpp')
+console_obj = env.Object(target='console.o', source='common/console.cpp')
+grammar_parser_obj = env.Object(target='grammar-parser.o', source='common/grammar-parser.cpp')
+train_obj = env.Object(target='train.o', source='common/train.cpp')
+# Link the object files into a shared library
+libllama = env.SharedLibrary(target='libllama', source=[llama_obj, ggml_obj, k_quants_obj, ggml_alloc_obj, common_obj])
+
+# Define a function to generate build-info.h
+def generate_build_info(target, source, env):
+    cmd = 'sh scripts/build-info.sh %s > %s.tmp' % (env['CC'], str(target[0]))
+    os.system(cmd)
+    
+    # Check if the generated file is different from the existing one
+    if os.path.exists(str(target[0])):
+        if not filecmp.cmp(str(target[0]) + ".tmp", str(target[0])):
+            os.rename(str(target[0]) + ".tmp", str(target[0]))
+        else:
+            os.remove(str(target[0]) + ".tmp")
+    else:
+        os.rename(str(target[0]) + ".tmp", str(target[0]))
+
+# Define the builder for build-info.h
+build_info_builder = Builder(action=generate_build_info)
+env.Append(BUILDERS={'BuildInfo': build_info_builder})
+
+# Generate build-info.h
+build_info_header = env.BuildInfo(target='build-info.h', source=['.git/index', 'scripts/build-info.sh'])
+
+# Ensure build-info.h is generated before compiling sources that depend on it
+Depends('common/common.o', build_info_header)
+
+
+
+# Default and all targets
+# Default(BUILD_TARGETS)
+Alias('all', BUILD_TARGETS)  # + TEST_TARGETS once defined
+Return("env")

@@ -16,12 +16,10 @@ cd models
 wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q5_K_M.gguf
 cd ..
 
-git clone https://github.com/ggerganov/llama.cpp.git
+git clone https://github.com/ggerganov/llama.cpp.git llama_dot_cpp
 git clone https://github.com/godotengine/godot-cpp.git
 
-cd llama.cpp
-make
-cd ..
+cp SConstruct-llamacpp llama_dot_cpp/SConstruct
 
 cd godot-cpp
 git checkout godot-4.1.1-stable

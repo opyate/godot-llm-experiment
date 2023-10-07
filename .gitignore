@@ -1,6 +1,6 @@
 godot-cpp
 models/
-llama.cpp
+llama_dot_cpp
 .sconsign.dblite
 libllama.a
 *.so
