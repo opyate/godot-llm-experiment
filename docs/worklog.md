@@ -302,7 +302,7 @@ Changed the signal to not bother with passing `this`, and now...
 
 It works!
 
-![It works](docs/it_works.png)
+![It works](it_works.png)
 
 # Part 8: make it all look a bit nicer
 
