@@ -19,13 +19,16 @@ env.Append(CPPPATH=[
     "src/",
     llamacpp_path,
     os.path.join(llamacpp_path, 'common'),
-    "godot-cpp/include/godot_cpp/classes/"  # Add this path for wrapped.hpp
+    # "godot-cpp/include/godot_cpp/classes/"  # Add this path for wrapped.hpp
 ])
 sources = Glob("src/*.cpp")
 
 # Include wrapped.cpp in your sources
-sources.append("godot-cpp/src/classes/wrapped.cpp")
+# sources.append("godot-cpp/src/classes/wrapped.cpp")
 
+# add 'pthread' to libraries
+libraries = ['pthread']
+env.Append(LIBS=libraries)
 
 # Object files from the specified path
 object_files = [
@@ -35,10 +38,6 @@ object_files = [
     os.path.join(llamacpp_path, 'common.o'),
     os.path.join(llamacpp_path, 'llama.o')
 ]
-
-# add 'pthread' to libraries
-libraries = ['pthread']
-env.Append(LIBS=libraries)
 
 # Create a static library from the object files
 static_lib = env.StaticLibrary('llama', object_files)

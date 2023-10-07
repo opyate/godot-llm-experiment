@@ -29,6 +29,7 @@ cp gdextension/extension_api.json ../the-game/extension_api.json
 scons platform=linux -j31 custom_api_file=$(pwd)/../the-game/extension_api.json
 cd ..
 
+# build my gdextension here:
 scons platform=linux -j31
 ```
 
