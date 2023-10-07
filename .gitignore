@@ -5,3 +5,4 @@ llama_dot_cpp
 libllama.a
 *.so
 *.os
+the-game/bin/mistral-7b-instruct-v0.1.Q5_K_M.gguf

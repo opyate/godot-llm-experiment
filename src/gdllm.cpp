@@ -22,6 +22,8 @@ void GDLLM::_bind_methods() {
     // PropertyInfo parameters are defined with the data type of the parameter,
     // and then the name that the parameter will have by default.
     ADD_SIGNAL(MethodInfo("completion_generated", PropertyInfo(Variant::OBJECT, "node"), PropertyInfo(Variant::STRING, "completion_text")));
+
+    ClassDB::bind_method(D_METHOD("run_completion", "prompt_from_godot"), &GDLLM::run_completion);
 }
 
 GDLLM::GDLLM() {

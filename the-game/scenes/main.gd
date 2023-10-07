@@ -3,9 +3,9 @@ extends Node2D
 
 func _ready():
 	var llm = GDLLM.new()
-	
+
 	llm.connect("completion_generated", on_completion_generated)
-	
+
 	llm.run_completion("Hello, my name is ")
 	
 

@@ -30,8 +30,12 @@ cp gdextension/extension_api.json ../the-game/extension_api.json
 scons platform=linux -j31 custom_api_file=$(pwd)/../the-game/extension_api.json
 cd ..
 
+cp llama_dot_cpp/libllama.so the-game/bin
 # build my gdextension here:
 scons platform=linux -j31
+
+cp models/mistral-7b-instruct-v0.1.Q5_K_M.gguf the-game/bin/
+# load the game in Godot
 ```
 
 Note that if you run `scons -c` in the root, it will remove the built dependencies in `llama_dot_cpp`, so scons have to be run for the latter again for building the extension.
@@ -44,6 +48,7 @@ rm the-game/bin/*.so;  scons -c
 cd llama_dot_cpp
 scons -j31
 cd ..
+cp llama_dot_cpp/libllama.so the-game/bin
 scons platform=linux -j31
 ```
 
