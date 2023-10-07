@@ -2,35 +2,33 @@
 import os
 import sys
 
-env = SConscript("godot-cpp/SConstruct")
+# Create a main environment for godot
+godot_env = SConscript("godot-cpp/SConstruct")
 
-# For reference:
-# - CCFLAGS are compilation flags shared between C and C++
-# - CFLAGS are for C-specific compilation flags
-# - CXXFLAGS are for C++-specific compilation flags
-# - CPPFLAGS are for pre-processor flags
-# - CPPDEFINES are for pre-processor defines
-# - LINKFLAGS are for linking flags
+# Create a clone of the godot environment for llama
+llama_env = godot_env.Clone()
 
+# Specify common paths
 llamacpp_path = ARGUMENTS.get('llamacpp_path', 'llama.cpp')  # llama.cpp is a directory, not a cpp file :)
 
-# Specify where to find headers and libraries
-env.Append(CPPPATH=[
+headers_and_libraries_paths = [
     "src/",
     llamacpp_path,
-    os.path.join(llamacpp_path, 'common'),
-    # "godot-cpp/include/godot_cpp/classes/"  # Add this path for wrapped.hpp
-])
+    os.path.join(llamacpp_path, 'common')
+]
+
+# Append paths to both environments
+godot_env.Append(CPPPATH=headers_and_libraries_paths)
+llama_env.Append(CPPPATH=headers_and_libraries_paths)
+
+# Compile and link settings
 sources = Glob("src/*.cpp")
 
-# Include wrapped.cpp in your sources
-# sources.append("godot-cpp/src/classes/wrapped.cpp")
+# Add 'pthread' to libraries for both environments
+godot_env.Append(LIBS=['pthread'])
+llama_env.Append(LIBS=['pthread'])
 
-# add 'pthread' to libraries
-libraries = ['pthread']
-env.Append(LIBS=libraries)
-
-# Object files from the specified path
+# Object files from the specified path for llama_env
 object_files = [
     os.path.join(llamacpp_path, 'ggml-alloc.o'),
     os.path.join(llamacpp_path, 'k_quants.o'),
@@ -39,21 +37,21 @@ object_files = [
     os.path.join(llamacpp_path, 'llama.o')
 ]
 
-# Create a static library from the object files
-static_lib = env.StaticLibrary('llama', object_files)
+# Create a static library from the object files using llama_env
+static_lib = llama_env.StaticLibrary('llama', object_files)
 
-# Link the shared library against the static library
-if env["platform"] == "macos":
-    library = env.SharedLibrary(
+# Link the shared library against the static library using godot_env
+if godot_env["platform"] == "macos":
+    library = godot_env.SharedLibrary(
         "the-game/bin/libgdllm.{}.{}.framework/libgdllm.{}.{}".format(
-            env["platform"], env["target"], env["platform"], env["target"]
+            godot_env["platform"], godot_env["target"], godot_env["platform"], godot_env["target"]
         ),
         source=sources,
         LIBS=[static_lib]
     )
 else:
-    library = env.SharedLibrary(
-        "the-game/bin/libgdllm{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+    library = godot_env.SharedLibrary(
+        "the-game/bin/libgdllm{}{}".format(godot_env["suffix"], godot_env["SHLIBSUFFIX"]),
         source=sources,
         LIBS=[static_lib]
     )
