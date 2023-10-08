@@ -16,6 +16,8 @@ private:
     // const PackedStringArray& stop_sequence;
     PackedStringArray stop_sequence;
     int longest_stop_sequence_string_length;
+    bool debug;
+    uint32_t random_seed;
 
 // A static function that Godot will call to find out which methods can be called and which properties it exposes
 protected:
@@ -29,7 +31,10 @@ public:
     godot::String run_completion(const String &prompt_from_godot, const int max_new_tokens);
     void set_stop_sequence(const PackedStringArray& p_stop_sequence);
     PackedStringArray get_stop_sequence() const;
-
+    void set_debug(const bool p_debug);
+    bool get_debug() const;
+    void set_random_seed(const uint32_t p_random_seed);
+    uint32_t get_random_seed() const;
 };
 }
 

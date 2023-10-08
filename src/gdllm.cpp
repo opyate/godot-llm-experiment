@@ -17,6 +17,14 @@ void GDLLM::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_stop_sequence", "p_stop_sequence"), &GDLLM::set_stop_sequence);
     ClassDB::add_property("GDLLM", PropertyInfo(Variant::PACKED_STRING_ARRAY, "stopSeq"), "set_stop_sequence", "get_stop_sequence");
 
+    ClassDB::bind_method(D_METHOD("get_debug"), &GDLLM::get_debug);
+    ClassDB::bind_method(D_METHOD("set_debug", "p_debug"), &GDLLM::set_debug);
+    ClassDB::add_property("GDLLM", PropertyInfo(Variant::BOOL, "debug"), "set_debug", "get_debug");
+
+    ClassDB::bind_method(D_METHOD("get_random_seed"), &GDLLM::get_random_seed);
+    ClassDB::bind_method(D_METHOD("set_random_seed", "p_random_seed"), &GDLLM::set_random_seed);
+    ClassDB::add_property("GDLLM", PropertyInfo(Variant::INT, "random_seed"), "set_random_seed", "get_random_seed");
+
     // MethodInfo's first parameter will be the signal's name.
     // Its remaining parameters are PropertyInfo types which describe
     // the essentials of each of the method's parameters.
@@ -36,6 +44,8 @@ void GDLLM::_bind_methods() {
 GDLLM::GDLLM() {
     // Initialize any variables here.
     longest_stop_sequence_string_length = 0;
+    debug = false;
+    random_seed = time(NULL);
 }
 
 GDLLM::~GDLLM() {
@@ -66,21 +76,28 @@ PackedStringArray GDLLM::get_stop_sequence() const {
     return stop_sequence;
 }
 
-godot::String GDLLM::run_completion(const String& prompt_from_godot, const int max_new_tokens) {
-    // // convert stop_sequence to comma-delimited string
-    // std::string stop_sequence_str;
-    // for (int i = 0; i < stop_sequence.size(); i++) {
-    //     // stop_sequence_str += stop_sequence[i].utf8().get_data();
-    //     stop_sequence_str += stop_sequence[i].utf8().get_data();
-    //     // add ", "
-    //     if (i < stop_sequence.size() - 1) {
-    //         stop_sequence_str += ", ";
-    //     }
-    // }
-    // const String godot_stop_sequence_str = stop_sequence_str.c_str();
-    // godot::UtilityFunctions::print("[GDLLM] using stop_sequence: ", godot_stop_sequence_str);
+void GDLLM::set_debug(const bool p_debug) {
+    debug = p_debug;
+}
 
-    godot::UtilityFunctions::print("[GDLLM] prompt: @@", prompt_from_godot, "@@");
+bool GDLLM::get_debug() const {
+    return debug;
+}
+
+void GDLLM::set_random_seed(const uint32_t p_random_seed) {
+    random_seed = p_random_seed;
+}
+
+uint32_t GDLLM::get_random_seed() const {
+    return random_seed;
+}
+
+godot::String GDLLM::run_completion(const String& prompt_from_godot, const int max_new_tokens) {
+    
+    if (debug) {
+        godot::UtilityFunctions::print("[GDLLM] prompt: @@", prompt_from_godot, "@@");
+    }
+
     gpt_params params;
 
     params.model = "bin/mistral-7b-instruct-v0.1.Q5_K_M.gguf";
@@ -118,7 +135,9 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
 
     if (model == NULL) {
         fprintf(stderr , "%s: error: unable to load model\n" , __func__);
-        godot::UtilityFunctions::print("[GDLLM] unable to load model");
+        if (debug) {
+            godot::UtilityFunctions::print("[GDLLM] unable to load model");
+        }
         return "[GDLLM] unable to load model";
     }
 
@@ -126,16 +145,20 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
 
     llama_context_params ctx_params = llama_context_default_params();
 
-    ctx_params.seed  = 1234;
+    ctx_params.seed = random_seed;
+    std::mt19937 rng(ctx_params.seed);
     ctx_params.n_ctx = 2048;
     ctx_params.n_threads = params.n_threads;
     ctx_params.n_threads_batch = params.n_threads_batch == -1 ? params.n_threads : params.n_threads_batch;
 
     llama_context * ctx = llama_new_context_with_model(model, ctx_params);
+    llama_set_rng_seed(ctx, params.seed);
 
     if (ctx == NULL) {
         fprintf(stderr , "%s: error: failed to create the llama_context\n" , __func__);
-        godot::UtilityFunctions::print("[GDLLM] failed to create llm context");
+        if (debug) {
+            godot::UtilityFunctions::print("[GDLLM] failed to create llm context");
+        }
         return "[GDLLM] failed to create llm context";
     }
 
@@ -153,7 +176,9 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
     if (n_kv_req > n_ctx) {
         // LOG_TEE("%s: error: n_kv_req > n_ctx, the required KV cache size is not big enough\n", __func__);
         // LOG_TEE("%s:        either reduce n_parallel or increase n_ctx\n", __func__);
-        godot::UtilityFunctions::print("[GDLLM] the required KV cache size is not big enough");
+        if (debug) {
+            godot::UtilityFunctions::print("[GDLLM] the required KV cache size is not big enough");
+        }
         return "[GDLLM] the required KV cache size is not big enough";
     }
 
@@ -187,7 +212,9 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
 
     if (llama_decode(ctx, batch) != 0) {
         // LOG_TEE("%s: llama_decode() failed\n", __func__);
-        godot::UtilityFunctions::print("[GDLLM] llama_decode() failed");
+        if (debug) {
+            godot::UtilityFunctions::print("[GDLLM] llama_decode() failed");
+        }
         return "[GDLLM] llama_decode() failed";
     }
 
@@ -244,7 +271,9 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
                 std::string stop_seq = stop_sequence[i].utf8().get_data();
                 if (recent_tokens.length() >= stop_seq.length() && 
                     recent_tokens.substr(recent_tokens.length() - stop_seq.length()) == stop_seq) {
-                    godot::UtilityFunctions::print("[GDLLM] stopping on stop sequence: ", stop_seq.c_str());
+                    if (debug) {
+                        godot::UtilityFunctions::print("[GDLLM] stopping on stop sequence: ", stop_seq.c_str());
+                    }
                     n_len = n_cur;  // set the target sequence length to current to stop further generation
                     break;
                 }
@@ -269,7 +298,9 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
         // evaluate the current batch with the transformer model
         if (llama_decode(ctx, batch)) {
             fprintf(stderr, "%s : failed to eval, return code %d\n", __func__, 1);
-            godot::UtilityFunctions::print("[GDLLM] failed to eval");
+            if (debug) {
+                godot::UtilityFunctions::print("[GDLLM] failed to eval");
+            }
             return "[GDLLM] failed to eval";
         }
     }
@@ -314,7 +345,9 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
     // from https://ask.godotengine.org/110221/c-string-to-string
     const String godot_completion = completion_text.c_str();
 
-    godot::UtilityFunctions::print("[GDLLM] completion: @@", godot_completion, "@@");
+    if (debug) {
+        godot::UtilityFunctions::print("[GDLLM] completion: @@", godot_completion, "@@");
+    }
 
     // emit a signal with the completion text
     emit_signal("completion_generated", godot_completion);

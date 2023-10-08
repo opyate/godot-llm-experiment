@@ -3,19 +3,6 @@ extends Node2D
 @onready var dialogue = $dialogue
 
 
-#func _ready():
-#	var d = [] + G.DIALOGUE_SEED_STATE
-#	for i in range(21):
-#		if i % 2 == 0:
-#			d.append("user %s" % [i])
-#		else:
-#			d.append("assistant %s" % [i])
-#	print(d)
-#	print("-------------------")
-#
-#	var l = G.DIALOGUE_SEED_STATE + d.slice(-7)
-#	print(l)
-
 func _ready():
 	var running_dialogue = [] + G.DIALOGUE_SEED_STATE
 	
@@ -25,7 +12,7 @@ func _ready():
 	running_dialogue = result["possibly_truncated_dialogue_history"]
 	print(">> " + assistant_response)
 	
-	for i in range(5):
+	for i in range(3):
 		
 		result = dialogue.assistant_get_next_line(running_dialogue)
 		assistant_response = result["assistant_response"]

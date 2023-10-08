@@ -97,7 +97,7 @@ def _clean_response(response: str) -> str:
     
     response = response.strip()
 
-# if the response doesn't end with punctuation, then cut the response off after the last punctuation.
+    # if the response doesn't end with punctuation, then cut the response off after the last punctuation.
     if response[-1] not in punc:
         all_shorter_responses = []
         for p in punc:

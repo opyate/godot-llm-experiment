@@ -4,10 +4,14 @@ extends Node2D
 var llm
 var max_new_tokens = 40
 
+var by_len = func(a, b):
+	return len(a) > len(b)
+	
+
 func _ready():
 	llm = GDLLM.new()
 	llm.set_stop_sequence(G.stop_sequence)
-
+	llm.set_debug(false)
 
 
 func get_prompt(dialogue: Array) -> String:
@@ -24,6 +28,7 @@ func get_prompt(dialogue: Array) -> String:
 			push_error("Only user and assistant roles are supported!")
 	return prompt
 
+
 func _get_prompt(dialogue_history: Array) -> Array:
 	var prompt = get_prompt(dialogue_history)
 	# var tokens = MODEL.tokenize(prompt, add_bos_token=true)
@@ -38,23 +43,24 @@ func _get_prompt(dialogue_history: Array) -> Array:
 	else:
 		return [prompt, dialogue_history]
 
-var PUNC = ['.', '!', '?', '"']
 
 func _clean_response(response: String) -> String:
 	for junk in G.EOS_TOKEN_JUNK:
 		response = response.replace(junk, "")
 	response = response.strip_edges()
-	if not PUNC.has(response.right(1)):
+	if not G.PUNC.has(response.right(1)):
 		var all_shorter_responses = []
-		for p in PUNC:
+		for p in G.PUNC:
 			var maybe_shorter_response = response.substr(0, response.rfind(p) + 1)
 			if maybe_shorter_response.length() == 0:
 				continue
 			all_shorter_responses.append(maybe_shorter_response)
 		if all_shorter_responses.size() > 0:
-			# response = max(all_shorter_responses, key=lambda x: x.length())
-			pass
+			# use the longest shorter response
+			all_shorter_responses.sort_custom(by_len)
+			response = all_shorter_responses[0]
 	return response
+
 
 func assistant_get_next_line(dialogue_history: Array):
 	dialogue_history.append({"role": "user", "content": "Continue."})

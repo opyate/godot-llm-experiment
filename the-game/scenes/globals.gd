@@ -14,6 +14,7 @@ const DIALOGUE_SEED_STATE = [
 	{"role": "assistant", "content": "Person 2: Dude, the Panopticon is everywhere."},
 ]
 
+const PUNC = ['.', '!', '?', '"']
 const stop_sequence = [EOS_TOKEN, "\n", "\n\n"]
 
 func _ready():
