@@ -12,6 +12,7 @@ func _ready():
 	llm = GDLLM.new()
 	llm.set_stop_sequence(G.stop_sequence)
 	llm.set_debug(false)
+	# llm.set_random_seed(42)
 
 
 func get_prompt(dialogue: Array) -> String:

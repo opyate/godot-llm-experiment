@@ -35,12 +35,6 @@ void GDLLM::_bind_methods() {
     ClassDB::bind_method(D_METHOD("run_completion", "prompt_from_godot"), &GDLLM::run_completion);
 }
 
-// GDLLM::GDLLM() : stop_sequences(PackedStringArray()) {
-//     // Initialize any variables here.
-// }
-// GDLLM::GDLLM(const PackedStringArray& stopSeqs) : stop_sequences(stopSeqs) {
-//     // Other initializations if needed.
-// }
 GDLLM::GDLLM() {
     // Initialize any variables here.
     longest_stop_sequence_string_length = 0;
@@ -102,16 +96,9 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
 
     params.model = "bin/mistral-7b-instruct-v0.1.Q5_K_M.gguf";
 
-    // trying random stuff off the Internet: 
-    // https://www.reddit.com/r/godot/comments/12u2l5i/gdextension_strings_gettings_mangledgarbage_from/
     CharString temp = prompt_from_godot.utf8();
-    const char* p_prompt = temp.get_data();  // needs .c_str()?
+    const char* p_prompt = temp.get_data();
     params.prompt = p_prompt;
-
-    // // if the above doesn't work, try:
-    // // https://ask.godotengine.org/138972/convert-godots-string-to-c-s-std-string
-    // std::string stdstring_prompt(prompt_from_godot.utf8().get_data());
-    // const char* p_prompt = stdstring_prompt.c_str();
 
     if (params.prompt.empty()) {
         return "You didn't prompt me.";
@@ -146,7 +133,8 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
     llama_context_params ctx_params = llama_context_default_params();
 
     ctx_params.seed = random_seed;
-    std::mt19937 rng(ctx_params.seed);
+    params.seed = random_seed;
+    std::mt19937 rng(params.seed);    
     ctx_params.n_ctx = 2048;
     ctx_params.n_threads = params.n_threads;
     ctx_params.n_threads_batch = params.n_threads_batch == -1 ? params.n_threads : params.n_threads_batch;
@@ -170,27 +158,13 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
     const int n_ctx    = llama_n_ctx(ctx);
     const int n_kv_req = tokens_list.size() + (n_len - tokens_list.size());
 
-    // LOG_TEE("\n%s: n_len = %d, n_ctx = %d, n_kv_req = %d\n", __func__, n_len, n_ctx, n_kv_req);
-
     // make sure the KV cache is big enough to hold all the prompt and generated tokens
     if (n_kv_req > n_ctx) {
-        // LOG_TEE("%s: error: n_kv_req > n_ctx, the required KV cache size is not big enough\n", __func__);
-        // LOG_TEE("%s:        either reduce n_parallel or increase n_ctx\n", __func__);
         if (debug) {
             godot::UtilityFunctions::print("[GDLLM] the required KV cache size is not big enough");
         }
         return "[GDLLM] the required KV cache size is not big enough";
     }
-
-    // print the prompt token-by-token
-
-    // fprintf(stderr, "\n");
-
-    // for (auto id : tokens_list) {
-    //     fprintf(stderr, "%s", llama_token_to_piece(ctx, id).c_str());
-    // }
-
-    // fflush(stderr);
 
     // create a llama_batch with size 512
     // we use this object to submit token data for decoding
@@ -211,7 +185,6 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
     batch.logits[batch.n_tokens - 1] = true;
 
     if (llama_decode(ctx, batch) != 0) {
-        // LOG_TEE("%s: llama_decode() failed\n", __func__);
         if (debug) {
             godot::UtilityFunctions::print("[GDLLM] llama_decode() failed");
         }
@@ -244,17 +217,13 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
             llama_token_data_array candidates_p = { candidates.data(), candidates.size(), false };
 
             // sample the most likely token
-            const llama_token new_token_id = llama_sample_token_greedy(ctx, &candidates_p);
+            // const llama_token new_token_id = llama_sample_token_greedy(ctx, &candidates_p);
+            const llama_token new_token_id = llama_sample_token(ctx, &candidates_p);
 
             // is it an end of stream?
             if (new_token_id == llama_token_eos(ctx) || n_cur == n_len) {
-                // LOG_TEE("\n");
-
                 break;
             }
-
-            // LOG_TEE("%s", llama_token_to_piece(ctx, new_token_id).c_str());
-            // fflush(stdout);
 
             // Add to the tokens list
             completions_list_tokens.push_back(new_token_id);
@@ -305,16 +274,7 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
         }
     }
 
-    // LOG_TEE("\n");
-
     const auto t_main_end = ggml_time_us();
-
-    // LOG_TEE("%s: decoded %d tokens in %.2f s, speed: %.2f t/s\n",
-    //         __func__, n_decode, (t_main_end - t_main_start) / 1000000.0f, n_decode / ((t_main_end - t_main_start) / 1000000.0f));
-
-    // llama_print_timings(ctx);
-
-    // fprintf(stderr, "\n");
 
     llama_batch_free(batch);
 

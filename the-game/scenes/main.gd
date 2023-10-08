@@ -13,7 +13,6 @@ func _ready():
 	print(">> " + assistant_response)
 	
 	for i in range(3):
-		
 		result = dialogue.assistant_get_next_line(running_dialogue)
 		assistant_response = result["assistant_response"]
 		running_dialogue = result["possibly_truncated_dialogue_history"]
