@@ -1,34 +1,22 @@
 extends Node2D
 
+signal next_please
+
 @onready var dialogue = $dialogue
+@onready var p1 = $Bg/Person1
+@onready var p2 = $Bg/Person2
 
 
 func _ready():
-	var running_dialogue = [] + G.DIALOGUE_SEED_STATE
+	$Bg.position.x = int(ProjectSettings.get_setting("display/window/size/viewport_width")) / 2
+	$Bg.position.y = int(ProjectSettings.get_setting("display/window/size/viewport_height")) / 2
 	
-	# start the conversation
-	var result = dialogue.assistant_get_next_line(running_dialogue)
-	var assistant_response = result["assistant_response"]
-	running_dialogue = result["possibly_truncated_dialogue_history"]
-	print(">> " + assistant_response)
+	next_please.connect(next_person_say_something)
 	
-	for i in range(15):
-		result = dialogue.assistant_get_next_line(running_dialogue)
-		assistant_response = result["assistant_response"]
-		running_dialogue = result["possibly_truncated_dialogue_history"]
-		print(">> " + assistant_response)
-		
-	
+	# kick off
+	next_person_say_something()
 
-#func _ready():
-#	var llm = GDLLM.new()
-#	llm.set_stop_sequence(stop_sequence)
-#
-#	llm.connect("completion_generated", on_completion_generated)
-#
-#	var completion_text = llm.run_completion("Standing on the shoulders of ", 32)
-#	print("Got completion via return value: " + completion_text)
-#
-#
-#func on_completion_generated(completion_text: String):
-#	print("Got completion via signal: " + completion_text)
+func next_person_say_something():
+	var response = dialogue.get_next_person_line()
+	p1.emit_signal("say", self, response)
+	p2.emit_signal("say", self, response)

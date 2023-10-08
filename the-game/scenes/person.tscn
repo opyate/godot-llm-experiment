@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://bmdkfo8rka81u"]
+
+[ext_resource type="Script" path="res://scenes/person.gd" id="1_sdm3m"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_puup1"]
+bg_color = Color(0.929412, 0.713726, 0, 1)
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+border_color = Color(0.929412, 0.713726, 0, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="person" type="Label"]
+offset_right = 223.0
+offset_bottom = 272.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_puup1")
+text = "The LLM will put random words here..."
+autowrap_mode = 2
+script = ExtResource("1_sdm3m")

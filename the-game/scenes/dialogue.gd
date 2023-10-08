@@ -75,4 +75,10 @@ func assistant_get_next_line(dialogue_history: Array):
 		"assistant_response": assistant_response,
 		"possibly_truncated_dialogue_history": possibly_truncated_dialogue_history,
 	}
-	
+
+var running_dialogue = [] + G.DIALOGUE_SEED_STATE
+func get_next_person_line():
+	var result = assistant_get_next_line(running_dialogue)
+	var assistant_response = result["assistant_response"]
+	running_dialogue = result["possibly_truncated_dialogue_history"]
+	return assistant_response
