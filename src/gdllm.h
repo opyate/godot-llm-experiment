@@ -15,6 +15,7 @@ class GDLLM : public Object {
 private:
     // const PackedStringArray& stop_sequence;
     PackedStringArray stop_sequence;
+    int longest_stop_sequence_string_length;
 
 // A static function that Godot will call to find out which methods can be called and which properties it exposes
 protected:

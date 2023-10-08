@@ -35,14 +35,31 @@ void GDLLM::_bind_methods() {
 // }
 GDLLM::GDLLM() {
     // Initialize any variables here.
+    longest_stop_sequence_string_length = 0;
 }
 
 GDLLM::~GDLLM() {
     // Add your cleanup here.
 }
 
+int getLongestStringLength(const PackedStringArray& p_stop_sequence) {
+    int maxLength = 0;
+
+    for (int i = 0; i < p_stop_sequence.size(); i++) {
+        String currentString = p_stop_sequence[i];
+        int currentLength = currentString.length();
+        
+        if (currentLength > maxLength) {
+            maxLength = currentLength;
+        }
+    }
+
+    return maxLength;
+}
+
 void GDLLM::set_stop_sequence(const PackedStringArray& p_stop_sequence) {
     stop_sequence = p_stop_sequence;
+    longest_stop_sequence_string_length = getLongestStringLength(p_stop_sequence);
 }
 
 PackedStringArray GDLLM::get_stop_sequence() const {
@@ -181,8 +198,8 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
 
     const auto t_main_start = ggml_time_us();
 
-    // a resizable array of std::string objects
-    std::vector<std::string> completion_list;
+    // a resizable array of tokens
+    std::vector<llama_token> completions_list_tokens;
 
     while (n_cur <= n_len) {
         // sample the next token
@@ -212,15 +229,22 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
             // LOG_TEE("%s", llama_token_to_piece(ctx, new_token_id).c_str());
             // fflush(stdout);
 
-            // append the output of llama_token_to_piece to completion_list
-            std::string current_token = llama_token_to_piece(ctx, new_token_id).c_str();
-            completion_list.push_back(current_token);
+            // Add to the tokens list
+            completions_list_tokens.push_back(new_token_id);
 
-            // 2. Check if the generated token matches any string in the stop sequence
+            // 1. Assemble the recent tokens into a string for checking stop sequences
+            int window_size = std::min(static_cast<int>(completions_list_tokens.size()), longest_stop_sequence_string_length);
+            std::string recent_tokens = "";
+            for (int i = 0; i < window_size; i++) {
+                recent_tokens = llama_token_to_piece(ctx, completions_list_tokens[completions_list_tokens.size() - 1 - i]).c_str() + recent_tokens;
+            }
+
+            // 2. Check against stop sequences
             for (int i = 0; i < stop_sequence.size(); i++) {
-                godot::UtilityFunctions::print("[GDLLM] comparing @@", current_token.c_str(), "@@ to @@", stop_sequence[i].utf8().get_data(), "@@");
-                if (current_token == stop_sequence[i].utf8().get_data()) {
-                    godot::UtilityFunctions::print("[GDLLM] stopping on stop sequence token: ", current_token.c_str());
+                std::string stop_seq = stop_sequence[i].utf8().get_data();
+                if (recent_tokens.length() >= stop_seq.length() && 
+                    recent_tokens.substr(recent_tokens.length() - stop_seq.length()) == stop_seq) {
+                    godot::UtilityFunctions::print("[GDLLM] stopping on stop sequence: ", stop_seq.c_str());
                     n_len = n_cur;  // set the target sequence length to current to stop further generation
                     break;
                 }
@@ -271,8 +295,19 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
     // convert the strings in completion_list to a single string
     std::string completion_text = "";
 
-    for (auto completion : completion_list) {
+    for (auto completion_token : completions_list_tokens) {
+        std::string completion = llama_token_to_piece(ctx, completion_token).c_str();
         completion_text += completion;
+    }
+
+    // if completion_text ends with any of the strings in stop_sequence, remove it
+    for (int i = 0; i < stop_sequence.size(); i++) {
+        std::string stop_seq = stop_sequence[i].utf8().get_data();
+        if (completion_text.length() >= stop_seq.length() && 
+            completion_text.substr(completion_text.length() - stop_seq.length()) == stop_seq) {
+            completion_text = completion_text.substr(0, completion_text.length() - stop_seq.length());
+            break;
+        }
     }
 
     // convert completion_text to Godot string
