@@ -29,7 +29,10 @@ func _get_prompt(dialogue_history: Array) -> Array:
 	# var tokens = MODEL.tokenize(prompt, add_bos_token=true)
 	# if tokens.size() >= 450:
 	if len(dialogue_history) > 10:
-		var truncated_dialogue_history = G.DIALOGUE_SEED_STATE + dialogue_history.slice(-7, -1)
+		# truncate the dialog, and just use the last few from the history.
+		# we know the history will end with "user", and the seed end with "assistant",
+		# so -7 (an odd number) ensures that the seed is followed by "user".
+		var truncated_dialogue_history = G.DIALOGUE_SEED_STATE + dialogue_history.slice(-7)
 		var shorter_prompt = get_prompt(truncated_dialogue_history)
 		return [shorter_prompt, truncated_dialogue_history]
 	else:

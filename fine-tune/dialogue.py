@@ -73,7 +73,9 @@ def _get_prompt(dialogue_history: list[str]) -> tuple[str, list[str]]:
     tokens = model.tokenize(prompt, add_bos_token=True)
     # context is 512, but it includes the response
     if len(tokens) >= 450:
-        # truncate the dialog, and just use the last few from the history
+        # truncate the dialog, and just use the last few from the history.
+        # we know the history will end with "user", and the seed with "assistant",
+        # so -7 (an odd number) ensures that the seed is followed by "user".
         truncated_dialogue_history = dialogue_seed_state + dialogue_history[-7:]
         shorter_prompt = get_prompt(truncated_dialogue_history)
 
