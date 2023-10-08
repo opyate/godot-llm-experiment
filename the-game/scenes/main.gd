@@ -1,7 +1,7 @@
 extends Node2D
 
 var EOS_TOKEN = "</s>"
-var stop_sequence = [EOS_TOKEN, "\n", "\n\n"]
+var stop_sequence = [EOS_TOKEN, "\n", "\n\n", " years"]
 
 func _ready():
 	var llm = GDLLM.new()

@@ -8,7 +8,7 @@ var INSTRUCTION_END_TOKEN = "[/INST]"
 
 var llm
 var max_new_tokens = 40
-var stop_sequence = [EOS_TOKEN, "\n", "\n\n", "are"]
+var stop_sequence = [EOS_TOKEN, "\n", "\n\n"]
 
 func _ready():
 	llm = GDLLM.new()

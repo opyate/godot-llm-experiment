@@ -218,6 +218,7 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
 
             // 2. Check if the generated token matches any string in the stop sequence
             for (int i = 0; i < stop_sequence.size(); i++) {
+                // godot::UtilityFunctions::print("[GDLLM] comparing [", current_token.c_str(), "] to [", stop_sequence[i].utf8().get_data(), "]");
                 if (current_token == stop_sequence[i].utf8().get_data()) {
                     godot::UtilityFunctions::print("[GDLLM] stopping on stop sequence token: ", current_token.c_str());
                     n_len = n_cur;  // set the target sequence length to current to stop further generation
