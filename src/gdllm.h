@@ -13,7 +13,7 @@ class GDLLM : public Object {
     GDCLASS(GDLLM, Object)
 
 private:
-    // const PackedStringArray& stop_sequence;
+    llama_model * model;
     PackedStringArray stop_sequence;
     int longest_stop_sequence_string_length;
     bool debug;

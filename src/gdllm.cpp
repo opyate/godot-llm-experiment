@@ -40,10 +40,22 @@ GDLLM::GDLLM() {
     longest_stop_sequence_string_length = 0;
     debug = false;
     random_seed = time(NULL);
+
+    // moved from run_completion() to here
+    gpt_params params;
+    // init LLM
+    llama_backend_init(params.numa);
+    // initialize the model
+    llama_model_params model_params = llama_model_default_params();
+    model_params.n_gpu_layers = 999; // offload all layers to the GPU
+    params.model = "bin/mistral-7b-instruct-v0.1.Q5_K_M.gguf";
+    model = llama_load_model_from_file(params.model.c_str(), model_params);
 }
 
 GDLLM::~GDLLM() {
     // Add your cleanup here.
+    llama_free_model(model);
+    llama_backend_free();
 }
 
 int getLongestStringLength(const PackedStringArray& p_stop_sequence) {
@@ -94,8 +106,6 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
 
     gpt_params params;
 
-    params.model = "bin/mistral-7b-instruct-v0.1.Q5_K_M.gguf";
-
     CharString temp = prompt_from_godot.utf8();
     const char* p_prompt = temp.get_data();
     params.prompt = p_prompt;
@@ -107,18 +117,6 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
     // total length of the sequence including the prompt
     int prompt_length = prompt_from_godot.length();
     int n_len = prompt_length + max_new_tokens;
-
-    // init LLM
-
-    llama_backend_init(params.numa);
-
-    // initialize the model
-
-    llama_model_params model_params = llama_model_default_params();
-
-    // model_params.n_gpu_layers = 99; // offload all layers to the GPU
-
-    llama_model * model = llama_load_model_from_file(params.model.c_str(), model_params);
 
     if (model == NULL) {
         fprintf(stderr , "%s: error: unable to load model\n" , __func__);
@@ -279,9 +277,6 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
     llama_batch_free(batch);
 
     llama_free(ctx);
-    llama_free_model(model);
-
-    llama_backend_free();
 
     // convert the strings in completion_list to a single string
     std::string completion_text = "";
