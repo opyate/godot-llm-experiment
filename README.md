@@ -52,6 +52,14 @@ cp llama_dot_cpp/libllama.so the-game/bin
 scons platform=linux -j31
 ```
 
+Or
+
+```
+rm the-game/bin/libgdllm.linux.template_debug.x86_64.so
+rm src/*.os
+scons platform=linux -j31
+```
+
 If any experts in scons/c++ reads this, I think the `SConstruct-llamacpp` step is probably unnecessary, and that I can get away with building llama.cpp using its own Makefile, and then just linking to the resulting `.a` file in the extension's `SConstruct` file. But I'm not sure how to do that.
 
 But for now, it works:

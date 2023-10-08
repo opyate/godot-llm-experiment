@@ -7,14 +7,15 @@
 #include <string>
 #include <vector>
 #include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 using namespace godot;
 
 void GDLLM::_bind_methods() {
-    // ClassDB::bind_method(D_METHOD("get_prompt"), &GDLLM::get_prompt);
-    // ClassDB::bind_method(D_METHOD("set_prompt", "p_amplitude"), &GDLLM::set_prompt);
-    // ClassDB::add_property("GDLLM", PropertyInfo(Variant::STRING, "prompt"), "set_prompt", "get_prompt");
+    ClassDB::bind_method(D_METHOD("get_stop_sequence"), &GDLLM::get_stop_sequence);
+    ClassDB::bind_method(D_METHOD("set_stop_sequence", "p_stop_sequence"), &GDLLM::set_stop_sequence);
+    ClassDB::add_property("GDLLM", PropertyInfo(Variant::PACKED_STRING_ARRAY, "stopSeq"), "set_stop_sequence", "get_stop_sequence");
 
     // MethodInfo's first parameter will be the signal's name.
     // Its remaining parameters are PropertyInfo types which describe
@@ -26,6 +27,12 @@ void GDLLM::_bind_methods() {
     ClassDB::bind_method(D_METHOD("run_completion", "prompt_from_godot"), &GDLLM::run_completion);
 }
 
+// GDLLM::GDLLM() : stop_sequences(PackedStringArray()) {
+//     // Initialize any variables here.
+// }
+// GDLLM::GDLLM(const PackedStringArray& stopSeqs) : stop_sequences(stopSeqs) {
+//     // Other initializations if needed.
+// }
 GDLLM::GDLLM() {
     // Initialize any variables here.
 }
@@ -34,9 +41,29 @@ GDLLM::~GDLLM() {
     // Add your cleanup here.
 }
 
+void GDLLM::set_stop_sequence(const PackedStringArray& p_stop_sequence) {
+    stop_sequence = p_stop_sequence;
+}
 
-void GDLLM::run_completion(const String& prompt_from_godot) {
-    godot::UtilityFunctions::print("GDLLM prompt:\n", prompt_from_godot);
+PackedStringArray GDLLM::get_stop_sequence() const {
+    return stop_sequence;
+}
+
+godot::String GDLLM::run_completion(const String& prompt_from_godot, const int max_new_tokens) {
+    // convert stop_sequence to comma-delimited string
+    std::string stop_sequence_str;
+    for (int i = 0; i < stop_sequence.size(); i++) {
+        // stop_sequence_str += stop_sequence[i].utf8().get_data();
+        stop_sequence_str += stop_sequence[i].utf8().get_data();
+        // add ", "
+        if (i < stop_sequence.size() - 1) {
+            stop_sequence_str += ", ";
+        }
+    }
+    const String godot_stop_sequence_str = stop_sequence_str.c_str();
+
+    godot::UtilityFunctions::print("[GDLLM] using stop_sequence: ", godot_stop_sequence_str);
+    godot::UtilityFunctions::print("[GDLLM] prompt: ", prompt_from_godot);
     gpt_params params;
 
     params.model = "bin/mistral-7b-instruct-v0.1.Q5_K_M.gguf";
@@ -53,11 +80,12 @@ void GDLLM::run_completion(const String& prompt_from_godot) {
     // const char* p_prompt = stdstring_prompt.c_str();
 
     if (params.prompt.empty()) {
-        params.prompt = "Hello my name is";
+        return "You didn't prompt me.";
     }
 
     // total length of the sequence including the prompt
-    const int n_len = 32;
+    int prompt_length = prompt_from_godot.length();
+    int n_len = prompt_length + max_new_tokens;
 
     // init LLM
 
@@ -73,8 +101,8 @@ void GDLLM::run_completion(const String& prompt_from_godot) {
 
     if (model == NULL) {
         fprintf(stderr , "%s: error: unable to load model\n" , __func__);
-        godot::UtilityFunctions::print("GDLLM unable to load model");
-        return;
+        godot::UtilityFunctions::print("[GDLLM] unable to load model");
+        return "[GDLLM] unable to load model";
     }
 
     // initialize the context
@@ -90,8 +118,8 @@ void GDLLM::run_completion(const String& prompt_from_godot) {
 
     if (ctx == NULL) {
         fprintf(stderr , "%s: error: failed to create the llama_context\n" , __func__);
-        godot::UtilityFunctions::print("GDLLM failed to create llm context");
-        return;
+        godot::UtilityFunctions::print("[GDLLM] failed to create llm context");
+        return "[GDLLM] failed to create llm context";
     }
 
     // tokenize the prompt
@@ -108,7 +136,8 @@ void GDLLM::run_completion(const String& prompt_from_godot) {
     if (n_kv_req > n_ctx) {
         // LOG_TEE("%s: error: n_kv_req > n_ctx, the required KV cache size is not big enough\n", __func__);
         // LOG_TEE("%s:        either reduce n_parallel or increase n_ctx\n", __func__);
-        return;
+        godot::UtilityFunctions::print("[GDLLM] the required KV cache size is not big enough");
+        return "[GDLLM] the required KV cache size is not big enough";
     }
 
     // print the prompt token-by-token
@@ -141,7 +170,8 @@ void GDLLM::run_completion(const String& prompt_from_godot) {
 
     if (llama_decode(ctx, batch) != 0) {
         // LOG_TEE("%s: llama_decode() failed\n", __func__);
-        return;
+        godot::UtilityFunctions::print("[GDLLM] llama_decode() failed");
+        return "[GDLLM] llama_decode() failed";
     }
 
     // main loop
@@ -182,10 +212,18 @@ void GDLLM::run_completion(const String& prompt_from_godot) {
             // LOG_TEE("%s", llama_token_to_piece(ctx, new_token_id).c_str());
             // fflush(stdout);
 
-            // TODO add this to an array?
-            // llama_token_to_piece(ctx, new_token_id).c_str();
             // append the output of llama_token_to_piece to completion_list
-            completion_list.push_back(llama_token_to_piece(ctx, new_token_id).c_str());
+            std::string current_token = llama_token_to_piece(ctx, new_token_id).c_str();
+            completion_list.push_back(current_token);
+
+            // 2. Check if the generated token matches any string in the stop sequence
+            for (int i = 0; i < stop_sequence.size(); i++) {
+                if (current_token == stop_sequence[i].utf8().get_data()) {
+                    godot::UtilityFunctions::print("[GDLLM] stopping on stop sequence token: ", current_token.c_str());
+                    n_len = n_cur;  // set the target sequence length to current to stop further generation
+                    break;
+                }
+            }
 
             // prepare the next batch
             batch.n_tokens = 0;
@@ -206,8 +244,8 @@ void GDLLM::run_completion(const String& prompt_from_godot) {
         // evaluate the current batch with the transformer model
         if (llama_decode(ctx, batch)) {
             fprintf(stderr, "%s : failed to eval, return code %d\n", __func__, 1);
-            godot::UtilityFunctions::print("GDLLM failed to eval");
-            return;
+            godot::UtilityFunctions::print("[GDLLM] failed to eval");
+            return "[GDLLM] failed to eval";
         }
     }
 
@@ -245,9 +283,5 @@ void GDLLM::run_completion(const String& prompt_from_godot) {
     // emit a signal with the completion text
     emit_signal("completion_generated", godot_completion);
 
-    // free memory
-    completion_list.clear();
-    p_prompt = NULL;
-
-    return;
+    return godot_completion;
 }
