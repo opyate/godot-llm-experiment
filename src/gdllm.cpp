@@ -50,20 +50,20 @@ PackedStringArray GDLLM::get_stop_sequence() const {
 }
 
 godot::String GDLLM::run_completion(const String& prompt_from_godot, const int max_new_tokens) {
-    // convert stop_sequence to comma-delimited string
-    std::string stop_sequence_str;
-    for (int i = 0; i < stop_sequence.size(); i++) {
-        // stop_sequence_str += stop_sequence[i].utf8().get_data();
-        stop_sequence_str += stop_sequence[i].utf8().get_data();
-        // add ", "
-        if (i < stop_sequence.size() - 1) {
-            stop_sequence_str += ", ";
-        }
-    }
-    const String godot_stop_sequence_str = stop_sequence_str.c_str();
+    // // convert stop_sequence to comma-delimited string
+    // std::string stop_sequence_str;
+    // for (int i = 0; i < stop_sequence.size(); i++) {
+    //     // stop_sequence_str += stop_sequence[i].utf8().get_data();
+    //     stop_sequence_str += stop_sequence[i].utf8().get_data();
+    //     // add ", "
+    //     if (i < stop_sequence.size() - 1) {
+    //         stop_sequence_str += ", ";
+    //     }
+    // }
+    // const String godot_stop_sequence_str = stop_sequence_str.c_str();
+    // godot::UtilityFunctions::print("[GDLLM] using stop_sequence: ", godot_stop_sequence_str);
 
-    godot::UtilityFunctions::print("[GDLLM] using stop_sequence: ", godot_stop_sequence_str);
-    godot::UtilityFunctions::print("[GDLLM] prompt: ", prompt_from_godot);
+    godot::UtilityFunctions::print("[GDLLM] prompt: @@", prompt_from_godot, "@@");
     gpt_params params;
 
     params.model = "bin/mistral-7b-instruct-v0.1.Q5_K_M.gguf";
@@ -218,7 +218,7 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
 
             // 2. Check if the generated token matches any string in the stop sequence
             for (int i = 0; i < stop_sequence.size(); i++) {
-                // godot::UtilityFunctions::print("[GDLLM] comparing [", current_token.c_str(), "] to [", stop_sequence[i].utf8().get_data(), "]");
+                godot::UtilityFunctions::print("[GDLLM] comparing @@", current_token.c_str(), "@@ to @@", stop_sequence[i].utf8().get_data(), "@@");
                 if (current_token == stop_sequence[i].utf8().get_data()) {
                     godot::UtilityFunctions::print("[GDLLM] stopping on stop sequence token: ", current_token.c_str());
                     n_len = n_cur;  // set the target sequence length to current to stop further generation
@@ -279,7 +279,7 @@ godot::String GDLLM::run_completion(const String& prompt_from_godot, const int m
     // from https://ask.godotengine.org/110221/c-string-to-string
     const String godot_completion = completion_text.c_str();
 
-    godot::UtilityFunctions::print("GDLLM completion:\n", godot_completion);
+    godot::UtilityFunctions::print("[GDLLM] completion: @@", godot_completion, "@@");
 
     // emit a signal with the completion text
     emit_signal("completion_generated", godot_completion);

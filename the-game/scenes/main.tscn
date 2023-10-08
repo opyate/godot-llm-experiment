@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://c770bm5t2ke5n"]
+[gd_scene load_steps=4 format=3 uid="uid://c770bm5t2ke5n"]
 
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_wh08m"]
 [ext_resource type="Texture2D" uid="uid://dvjv7agxka7jp" path="res://icon.svg" id="2_6hhai"]
+[ext_resource type="PackedScene" uid="uid://byv1jf53bcpy1" path="res://scenes/dialogue.tscn" id="3_prpac"]
 
 [node name="main" type="Node2D"]
 script = ExtResource("1_wh08m")
@@ -9,6 +10,8 @@ script = ExtResource("1_wh08m")
 [node name="GDExample" type="GDExample" parent="."]
 amplitude = 50.0
 speed = 1.18
-position = Vector2(52.9098, 99.9523)
+position = Vector2(49.7376, 0.000387204)
 texture = ExtResource("2_6hhai")
 centered = false
+
+[node name="dialogue" parent="." instance=ExtResource("3_prpac")]
