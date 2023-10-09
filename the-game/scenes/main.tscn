@@ -14,7 +14,7 @@ script = ExtResource("1_wh08m")
 amplitude = 50.0
 speed = 1.18
 visible = false
-position = Vector2(14.2131, 59.3024)
+position = Vector2(61.2944, 99.2717)
 texture = ExtResource("2_6hhai")
 centered = false
 
@@ -27,14 +27,14 @@ unique_name_in_owner = true
 offset_left = 327.0
 offset_top = -264.0
 offset_right = 550.0
-offset_bottom = 8.0
+offset_bottom = -222.0
 
 [node name="Person2" parent="World" instance=ExtResource("5_44qlc")]
 unique_name_in_owner = true
-offset_left = -559.0
-offset_top = -293.0
-offset_right = -336.0
-offset_bottom = -21.0
+offset_left = -533.0
+offset_top = -195.0
+offset_right = -310.0
+offset_bottom = -153.0
 
 [node name="dialogue" parent="." instance=ExtResource("3_prpac")]
 unique_name_in_owner = true

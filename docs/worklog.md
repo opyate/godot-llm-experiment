@@ -308,4 +308,8 @@ It works!
 
 This is where I port the dialogue orchestration code from Python to GDScript.
 
-TODO.
+It all works now. Video added.
+
+Lots of remaining work:
+- [make SConstruct better](https://stackoverflow.com/questions/77249050/scons-environment-seems-to-be-clobbered-after-adding-static-library/77253934)
+- make the demo better (use own art, etc)

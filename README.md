@@ -4,6 +4,14 @@ Trying to integrate an LLM into Godot.
 
 First use-case: for spicing up NPC chatter.
 
+[Video](https://www.youtube.com/watch?v=qHVFi8tws7Q):
+
+[![Video](https://img.youtube.com/vi/qHVFi8tws7Q/0.jpg)](https://www.youtube.com/watch?v=qHVFi8tws7Q)
+
+Screenshot:
+
+![It works](docs/it_works.png)
+
 # Work log
 
 See [docs/worklog.md](docs/worklog.md).
@@ -64,6 +72,10 @@ scons platform=linux -j31
 
 If any experts in scons/c++ reads this, I think the `SConstruct-llamacpp` step is probably unnecessary, and that I can get away with building llama.cpp using its own Makefile, and then just linking to the resulting `.a` file in the extension's `SConstruct` file. But I'm not sure how to do that.
 
-But for now, it works:
 
-![It works](docs/it_works.png)
+# Credits
+
+- Godot engine - https://godotengine.org/
+- image used in game is from https://growngaming.com/awesome/1st-gen-pokemon-sprites/
+- llama.cpp - https://github.com/ggerganov/llama.cpp
+- Mistral 7B LLM - https://mistral.ai/news/announcing-mistral-7b/

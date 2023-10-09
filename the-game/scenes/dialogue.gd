@@ -29,16 +29,18 @@ func get_prompt(dialogue: Array) -> String:
 			push_error("Only user and assistant roles are supported!")
 	return prompt
 
+const HISTORY_LENGTH = 11
 
 func _get_prompt(dialogue_history: Array) -> Array:
 	var prompt = get_prompt(dialogue_history)
 	# var tokens = MODEL.tokenize(prompt, add_bos_token=true)
 	# if tokens.size() >= 450:
-	if len(dialogue_history) > 10:
+	if len(dialogue_history) > HISTORY_LENGTH + 5:
+		print("~~~~~~~~~~~~~~~~~~~~~~~~ truncating dialogue")
 		# truncate the dialog, and just use the last few from the history.
 		# we know the history will end with "user", and the seed end with "assistant",
-		# so -7 (an odd number) ensures that the seed is followed by "user".
-		var truncated_dialogue_history = G.DIALOGUE_SEED_STATE + dialogue_history.slice(-7)
+		# so an odd numbered HISTORY_LENGTH ensures that the seed is followed by "user".
+		var truncated_dialogue_history = G.DIALOGUE_SEED_STATE + dialogue_history.slice(-HISTORY_LENGTH)
 		var shorter_prompt = get_prompt(truncated_dialogue_history)
 		return [shorter_prompt, truncated_dialogue_history]
 	else:
