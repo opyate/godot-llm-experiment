@@ -4,10 +4,9 @@ signal say(something)
 
 var natural_name
 
-# Called when the node enters the scene tree for the first time.
+
 func _ready():
 	natural_name = "Person %s" % [name.right(1)]
-	print("Hi, I am %s" % [natural_name])
 	say.connect(say_it)
 
 

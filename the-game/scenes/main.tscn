@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://c770bm5t2ke5n"]
+[gd_scene load_steps=7 format=3 uid="uid://c770bm5t2ke5n"]
 
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_wh08m"]
 [ext_resource type="Texture2D" uid="uid://dvjv7agxka7jp" path="res://icon.svg" id="2_6hhai"]
 [ext_resource type="PackedScene" uid="uid://byv1jf53bcpy1" path="res://scenes/dialogue.tscn" id="3_prpac"]
 [ext_resource type="Texture2D" uid="uid://c8ewas1cjmaw0" path="res://scenes/assets/bg.png" id="4_w5a0f"]
 [ext_resource type="PackedScene" uid="uid://bmdkfo8rka81u" path="res://scenes/person.tscn" id="5_44qlc"]
+[ext_resource type="Script" path="res://scenes/start.gd" id="6_1uugi"]
 
 [node name="main" type="Node2D"]
 script = ExtResource("1_wh08m")
@@ -13,25 +14,30 @@ script = ExtResource("1_wh08m")
 amplitude = 50.0
 speed = 1.18
 visible = false
-position = Vector2(48.0327, 0.0217809)
+position = Vector2(14.2131, 59.3024)
 texture = ExtResource("2_6hhai")
 centered = false
 
-[node name="Bg" type="Sprite2D" parent="."]
+[node name="World" type="Sprite2D" parent="."]
 position = Vector2(576, 324)
 texture = ExtResource("4_w5a0f")
 
-[node name="Person1" parent="Bg" instance=ExtResource("5_44qlc")]
+[node name="Person1" parent="World" instance=ExtResource("5_44qlc")]
+unique_name_in_owner = true
 offset_left = 327.0
 offset_top = -264.0
 offset_right = 550.0
 offset_bottom = 8.0
-text = "This is great"
 
-[node name="Person2" parent="Bg" instance=ExtResource("5_44qlc")]
+[node name="Person2" parent="World" instance=ExtResource("5_44qlc")]
+unique_name_in_owner = true
 offset_left = -559.0
 offset_top = -293.0
 offset_right = -336.0
 offset_bottom = -21.0
 
 [node name="dialogue" parent="." instance=ExtResource("3_prpac")]
+unique_name_in_owner = true
+
+[node name="start" type="Node" parent="."]
+script = ExtResource("6_1uugi")

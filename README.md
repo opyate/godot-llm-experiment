@@ -8,6 +8,8 @@ First use-case: for spicing up NPC chatter.
 
 See [docs/worklog.md](docs/worklog.md).
 
+Linux-only for now. (Mac and Windows folks, please send PRs!)
+
 # Quickstart
 
 ```
