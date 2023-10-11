@@ -6,3 +6,5 @@ libllama.a
 *.so
 *.os
 the-game/bin/mistral-7b-instruct-v0.1.Q5_K_M.gguf
+the-game/godot-llm-experiment.sh
+the-game/godot-llm-experiment.x86_64

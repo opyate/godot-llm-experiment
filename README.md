@@ -81,6 +81,8 @@ godot --export-debug "Linux/X11" godot-llm-experiment.x86_64
 cd ..
 ```
 
+(I see [this](docs/export-log.txt) when I run the above command.)
+
 It will run from here with `./godot-llm-experiment.x86_64`, because it's alongside the bin/ folder.
 
 To run it standalone, outside of the context of the source/project files:
