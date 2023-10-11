@@ -73,6 +73,28 @@ scons platform=linux -j31
 If any experts in scons/c++ reads this, I think the `SConstruct-llamacpp` step is probably unnecessary, and that I can get away with building llama.cpp using its own Makefile, and then just linking to the resulting `.a` file in the extension's `SConstruct` file. But I'm not sure how to do that.
 
 
+# Export
+
+```
+cd the-game
+godot --export-debug "Linux/X11" godot-llm-experiment.x86_64
+cd ..
+```
+
+It will run from here with `./godot-llm-experiment.x86_64`, because it's alongside the bin/ folder.
+
+To run it standalone, outside of the context of the source/project files:
+
+```
+TMP=$(mktemp -d)
+cp the-game/godot-llm-experiment.x86_64 $TMP
+cp -R the-game/bin $TMP
+cd $TMP
+./godot-llm-experiment.x86_64
+```
+
+You can now publish $TMP as a ZIP file.
+
 # Credits
 
 - Godot engine - https://godotengine.org/
